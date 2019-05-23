@@ -1,3 +1,12 @@
 from django.db import models
 
-# Create your models here.
+
+class GameServer(models.Model):
+    id = models.BigAutoField()
+    name = models.CharField()
+    number_players = models.BigIntegerField()
+    ip_address = models.CharField()
+    port = models.PositiveSmallIntegerField()
+
+    def __str__(self):
+        return self.name

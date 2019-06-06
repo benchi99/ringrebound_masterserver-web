@@ -20,17 +20,22 @@ class GameServerList(APIView):
 
     def post(self, request, format=None):
         ip, is_routeable = get_client_ip(request)
-        if ip:
+        if ip and is_routeable:
             server_data = request.data.dict()
-            server_data['ip_address'] = str(ip)
+            server_data['ip_address'] = ip
 
             serializer = GameServerSeralizer(data=server_data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        errordata = {'error': True, 'reason': 'Could not obtain IP address.'} if ip is None\
+            else {'error': True, 'reason': 'Please port forward the port you are trying to use and try again.'}\
+            if not is_routeable else {'error': True, 'reason': 'Unkown reason.'}
+
         return Response(
-            data={'error': True, 'reason': 'Could not obtain IP address.'},
+            data=errordata,
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
@@ -55,8 +60,3 @@ class GameServerDetail(APIView):
         gameserver = self.get_object(id)
         gameserver.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-# class GameServerViewSet(viewsets.ModelViewSet):
-#     queryset = GameServer.objects.all()
-#     serializer_class = GameServerSeralizer

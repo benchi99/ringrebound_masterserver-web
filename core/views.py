@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from ipware import get_client_ip
 
 from .models import GameServer
-from .serializers import GameServerSeralizer
+from .serializers import GameServerSerializer
 
 
 class GameServerList(APIView):
@@ -15,7 +15,7 @@ class GameServerList(APIView):
     """
     def get(self, request, format=None):
         gameservers = GameServer.objects.all()
-        serializer = GameServerSeralizer(gameservers, many=True)
+        serializer = GameServerSerializer(gameservers, many=True)
         return Response(serializer.data)
 
     def post(self, request, format=None):
@@ -24,20 +24,19 @@ class GameServerList(APIView):
             server_data = request.data.dict()
             server_data['ip_address'] = ip
 
-            serializer = GameServerSeralizer(data=server_data)
+            serializer = GameServerSerializer(data=server_data)
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return_data = serializer.data
+                return_data['id'] = GameServer.objects.last().id
+                return Response(return_data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         errordata = {'error': True, 'reason': 'Could not obtain IP address.'} if ip is None\
-            else {'error': True, 'reason': 'Please port forward the port you are trying to use and try again.'}\
+            else {'error': True, 'reason': 'This IP address is not valid. It must be routeable.'}\
             if not is_routeable else {'error': True, 'reason': 'Unkown reason.'}
 
-        return Response(
-            data=errordata,
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response(data=errordata, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class GameServerDetail(APIView):
@@ -53,7 +52,7 @@ class GameServerDetail(APIView):
 
     def get(self, request, id, format=None):
         gameserver = self.get_object(id)
-        serializer = GameServerSeralizer(gameserver)
+        serializer = GameServerSerializer(gameserver)
         return Response(serializer.data)
 
     def delete(self, request, id, format=None):

@@ -3,10 +3,10 @@ from rest_framework import serializers
 from .models import GameServer
 
 
-class GameServerSeralizer(serializers.Serializer):
+class GameServerSerializer(serializers.Serializer):
     name = serializers.CharField()
     number_players = serializers.IntegerField()
-    ip_address = serializers.CharField()
+    ip_address = serializers.CharField(allow_null=True, allow_blank=True)
     port = serializers.IntegerField()
 
     def create(self, validated_data):

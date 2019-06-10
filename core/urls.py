@@ -5,6 +5,7 @@ from . import views
 
 app_name = 'core'
 urlpatterns = [
+    path('', views.index, name="Index"),
     path('api/gameservers/', views.GameServerList.as_view()),
     path('api/gameservers/<int:id>', views.GameServerDetail.as_view())
 ]

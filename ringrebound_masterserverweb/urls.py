@@ -17,7 +17,6 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('', include('core.urls')),
-    path('ruben', include('ruben.urls')),
-    path('admin/', admin.site.urls),
+    path('ringrebound/', include('core.urls')),
+    path('ringrebound/admin/', admin.site.urls),
 ]

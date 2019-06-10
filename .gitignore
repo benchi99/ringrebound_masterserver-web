@@ -112,3 +112,4 @@ run/
 sfiles/
 media/
 templates/
+static/
